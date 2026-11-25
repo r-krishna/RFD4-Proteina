@@ -68,7 +68,9 @@ from atomworks.ml.transforms.filters import (
     RemoveUnresolvedPNUnits,
 )
 from atomworks.ml.transforms.mirror_transform import RandomlyMirrorInputs
-from atomworks.ml.transforms.realize_expandable_segments import RealizeExpandableSegments
+from atomworks.ml.transforms.realize_expandable_segments import (
+    RealizeExpandableSegments as AtomWorksRealizeExpandableSegments,
+)
 from atomworks.ml.transforms.symmetry import find_automorphisms_with_networkx
 from atomworks.ml.utils.token import (
     apply_and_spread_token_wise,
@@ -148,6 +150,22 @@ rootutils.setup_root(__file__, indicator=".project-root", pythonpath=True)
 CATH_MAPPING_PATH = os.path.join(os.environ["PROJECT_ROOT"], "data/cath_label_mapping.pkl")
 
 logger = logging.getLogger(__name__)
+
+
+class RealizeExpandableSegments(AtomWorksRealizeExpandableSegments):
+    """Seed each call from the worker's NumPy stream using an explicit integer width."""
+
+    def forward(self, data: dict[str, Any]) -> dict[str, Any]:
+        array = data["atom_array"]
+        if (
+            self._rng is None
+            and S_SEGMIN.has_annotation(array)
+            and np.any(S_SEGMIN.mask(array) & (array.res_name != MASKED))
+        ):
+            # AtomWorks 3.0 defaults to C long, which cannot hold this range on Windows.
+            seed = np.random.randint(0, 2**32, dtype=np.uint32)
+            return AtomWorksRealizeExpandableSegments(rng=np.random.default_rng(seed)).forward(data)
+        return super().forward(data)
 
 
 class PrecomputeAtomPermutation(Transform):
