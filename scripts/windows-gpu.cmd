@@ -1,5 +1,7 @@
 @echo off
 setlocal
+rem Keep independently compiled kernels such as RMSNorm in eager mode.
+set "TORCH_COMPILE_DISABLE=1"
 pushd "%~dp0.." || exit /b 1
 set "py=.venv-windows-gpu\Scripts\python.exe"
 set "cli=.venv-windows-gpu\Scripts\rfd4-generate.exe"
