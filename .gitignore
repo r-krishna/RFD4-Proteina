@@ -152,6 +152,7 @@ celerybeat.pid
 # Private user-created runtime profile
 .ipd/.env.local
 .venv
+.venv-windows-gpu/
 env/
 venv/
 ENV/

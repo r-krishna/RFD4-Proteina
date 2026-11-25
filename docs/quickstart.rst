@@ -7,6 +7,8 @@ Choose the package extra and PyTorch wheels for your CUDA version; the native
 ``make setup`` workflow defaults to CUDA 13. For CUDA 12, use the
 :ref:`PyPI instructions below <quickstart-pip>` or the manual install in :doc:`installation`.
 
+On Windows with an NVIDIA GPU, follow the experimental native Windows setup in :doc:`installation`.
+
 .. list-table::
    :header-rows: 1
    :widths: 30 70

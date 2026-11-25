@@ -14,6 +14,40 @@ Prerequisites
 * A C++ compiler and the matching CUDA 12 or 13 development toolkit (``nvcc``) only if building TMol from source.
 * Enough storage for the Python environment and configured released model weights.
 
+Native Windows GPU inference (experimental)
+-------------------------------------------
+
+On x64 Windows with an RTX 4500, use a CUDA 13.2-compatible NVIDIA driver
+already installed on the workstation. Run ``nvidia-smi`` in a regular
+PowerShell window to confirm Windows sees the card. Install uv for your
+account if needed, then reopen PowerShell in a writable checkout.
+
+.. code-block:: powershell
+
+   winget install --id astral-sh.uv --exact --scope user
+
+Run the setup and short inference check from the repository root:
+
+.. code-block:: powershell
+
+   .\scripts\windows-gpu.cmd
+
+The command creates a local Python 3.12 environment, installs the Windows
+cu132 PyTorch wheel, runs a CUDA operation, and generates one short monomer
+using the repository's pinned Hugging Face model. First use needs network
+access to the package indexes and model files. A successful run prints the
+path of the generated CIF. End-to-end inference on the RTX 4500 is unverified.
+
+For subsequent designs, pass generation arguments to the same launcher:
+
+.. code-block:: powershell
+
+   .\scripts\windows-gpu.cmd inputs=data/benchmarks/monomer/monomer-short.cif.zst out_dir=runs/my-monomer
+
+The launcher uses eager PyTorch attention and triangle multiplication, one
+GPU, and in-process data loading. It skips metrics, including TMol and
+container-based refolding. Packages and weights are cached for reuse.
+
 .. _supported-hardware:
 
 Supported hardware
