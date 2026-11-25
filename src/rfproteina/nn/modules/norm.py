@@ -1,6 +1,7 @@
 """Config-selectable LayerNorm/RMSNorm factory for the score-network trunk."""
 
 import logging
+import os
 
 import torch
 from torch.nn import functional as F
@@ -17,7 +18,11 @@ def _rms_norm_preserve_dtype(x: torch.Tensor, weight: torch.Tensor | None, eps: 
     return F.rms_norm(x, (x.shape[-1],), weight, eps).to(x.dtype)
 
 
-_compiled_rms_norm = torch.compile(_rms_norm_preserve_dtype, fullgraph=True, dynamic=True)
+# Bypass the fullgraph wrapper entirely when the launcher requests eager execution.
+if os.environ.get("TORCH_COMPILE_DISABLE") == "1":
+    _compiled_rms_norm = _rms_norm_preserve_dtype
+else:
+    _compiled_rms_norm = torch.compile(_rms_norm_preserve_dtype, fullgraph=True, dynamic=True)
 
 
 class CompiledRMSNorm(torch.nn.RMSNorm):
