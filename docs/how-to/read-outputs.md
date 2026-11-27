@@ -26,6 +26,28 @@ ca     = aa[aa.mask("(chain_id == 'A') & (atom_name == 'CA')")]            # the
 Parse with the `STANDARD_ANNOTATIONS_ONLY` preset from `rfproteina.utils.parse_presets` for minimal
 overhead when all you need is this provenance.
 
+## Highlighting motif atoms in PyMOL
+
+From the repository root, enter these commands in PyMOL. The example loads a
+generated CIF included in this checkout. Substitute the path to your own
+`*_generated.cif` to inspect a workshop result. For a `.cif.zst` output,
+decompress it to `.cif` first.
+
+```pymol
+set cif_keepinmemory, on
+load tests/data/atom_permutation/absolute_coords_generated.cif.gz, design
+run scripts/show_rfd4_motif.py
+show_rfd4_motif design
+iterate motif_atoms, print(chain, resn, resi, name)
+```
+
+Enable `cif_keepinmemory` before loading the file so PyMOL retains the custom
+CIF columns. The command creates two selections. `motif_atoms` contains the
+atoms marked by RFD4's coordinate-conditioned region annotation, including
+any marked ligand or metal atoms. These appear in magenta. `motif_residues`
+contains the whole protein residues around the marked protein atoms and is
+shown as sticks. Running the command on another object replaces both selections.
+
 ## Reading compressed structures
 
 The same `parse` call reads plain CIF, gzip (`.cif.gz`) and Zstandard (`.cif.zst`) inputs.
